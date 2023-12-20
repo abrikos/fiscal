@@ -16,9 +16,13 @@ export const useAuthStore = defineStore('auth', {
             this.redirect = path
         },
         async getUser() {
-            const {data}: any = await useNuxtApp().$GET('/user/checkAuth');
-            this.loggedUser = data.value
-            return data.value
+            if(!this.loggedUser) {
+                const {data}: any = await useNuxtApp().$GET('/user/checkAuth');
+                this.loggedUser = data.value
+                return data.value
+            }else{
+                return this.loggedUser
+            }
         },
         async authenticateUser(body: UserPayloadInterface, strategy: string) {
             // useFetch from nuxt 3
