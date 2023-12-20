@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     // @ts-ignore
     await Token.deleteExpiredTokens(authExpiration)
     console.log('zzzzzzzzzzzzzz')
-    const token: IToken | null = await Token.findOne({access: cookies[authTokenName]})//.populate('user');
+    const token: IToken | null = await Token.findOne({access: cookies[authTokenName]}).populate(['user']);
     console.log('fftttttttt', token)
     console.log(event.method, event._path)
     if (token) {
