@@ -3,8 +3,10 @@ import {IToken, Token} from "~/server/models/token.model";
 export default defineEventHandler(async (event) => {
     const {authExpiration, authTokenName, authRefreshBeforeExpiration} = useRuntimeConfig(event)
     const cookies = parseCookies(event)
+    console.log('xxxxxxxxxxxxxx')
     // @ts-ignore
     await Token.deleteExpiredTokens(authExpiration)
+    console.log('zzzzzzzzzzzzzz')
     const token: IToken | null = await Token.findOne({access: cookies[authTokenName]}).populate('user');
     console.log(event.method, event._path)
     if (token) {
