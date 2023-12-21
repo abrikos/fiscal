@@ -31,6 +31,7 @@ async function changePassword() {
 <template lang="pug">
 div(v-if="loggedUser")
     h1 Кабинет
+    div {{loggedUser}}
     v-tabs(v-model="tab")
         v-tab(value="1" ) Профиль
         v-tab(value="2" ) Смена пароля

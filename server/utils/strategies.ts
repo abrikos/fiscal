@@ -1,17 +1,20 @@
 import {BinaryLike} from "node:crypto";
 import crypto from "crypto";
-import {IUser, User} from "~/server/models/user.model";
-import {IToken, Token} from "~/server/models/token.model";
 import {EventHandlerRequest, H3Event} from "h3";
-interface IStrategy{
-    [key: string]: (event: H3Event<EventHandlerRequest>) => Promise<IUser | undefined>
+import {PrismaClient} from "@prisma/client";
+
+const prisma = new PrismaClient()
+
+interface IStrategies {
+    [key: string]: Function
 }
 
-export const strategies:IStrategy = {
+export const strategies:IStrategies = {
     async password(event: H3Event) {
         const {email, password} = await readBody(event)
-        const user: IUser | null = await User.findOne({email});
-        if (user?.checkPasswd(password)) {
+        const user = await prisma.users.findFirst({where:{email}});
+        if(!user) return
+        if (user.password_hash === utils.hashPassword(password)) {
             return user
         }
     },
@@ -38,14 +41,14 @@ export const strategies:IStrategy = {
         }
 
         if (checkSignature(body)) {
-            let user: IUser = await User.findOne({email, strategy: 'telegram'}) as unknown as IUser;
+            let user = await prisma.users.findFirst({where:{email, strategy: 'telegram'}})
             if (!user) {
-                user = await User.create({
+                user = await prisma.users.create({data:{
                     strategy: 'telegram',
                     name: first_name + ' ' + last_name,
-                    avatarImage: photo_url,
+                    photo: photo_url,
                     email,
-                }) as unknown as IUser;
+                }})
             }
             return user
         }

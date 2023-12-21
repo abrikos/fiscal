@@ -3,7 +3,7 @@ import { useAuthStore } from '~/store/authStore';
 const { authenticateUser, loggedUser } = useAuthStore(); // use authenticateUser action from  auth store
 const router = useRouter()
 //if(loggedUser) router.push('/cabinet')
-const user = ref({email: 'abrikoz@gmail.com', password: '29db'})
+const user = ref({email: 'abrikoz@gmail.com', password: '1'})
 async function submit(){
     await authenticateUser(user.value,'password')
 }

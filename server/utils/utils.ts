@@ -1,19 +1,16 @@
-import {IUser} from "~/server/models/user.model";
 import {H3Event} from "h3";
-import {IToken, Token} from "~/server/models/token.model";
+import {PrismaClient} from "@prisma/client";
+import crypto from "crypto";
 
+const prisma = new PrismaClient()
 export default {
-    adaptUser(user: IUser) {
-        if (user) {
-            user.passwordHash = ''
-            user.restorePassword = ''
-        }
-        return user
+    hashPassword(password: string) {
+        return crypto.createHash('sha256',).update(password).digest('hex')
     },
-    async setAuthToken(event: H3Event, user: IUser) {
+    async setAuthToken(event: H3Event, user_id: number) {
         const {authExpiration, authTokenName} = useRuntimeConfig(event)
-        const token: IToken = await Token.create({user}) as unknown as IToken
-        setCookie(event, authTokenName, token.access, {maxAge: authExpiration})
+        const token = await prisma.token.create({data: {user_id, value:Math.random().toString()}})
+        setCookie(event, authTokenName, token.value, {maxAge: authExpiration})
         return token
     },
     sleep(ms: number) {

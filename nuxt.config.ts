@@ -2,7 +2,6 @@
 export default defineNuxtConfig({
     modules: [
         '@invictus.codes/nuxt-vuetify',
-        'nuxt-mongoose',
         'nuxt-snackbar',
         '@pinia/nuxt'
     ],
@@ -22,11 +21,6 @@ export default defineNuxtConfig({
         bottom: true,
         right: true,
         duration: 5000
-    },
-    mongoose: {
-        uri: process.env.MONGODB_URI,
-        options: {},
-        modelsDir: 'models',
     },
     css: ['vuetify/lib/styles/main.sass', '~/assets/vuetify.sass'],
     vuetify: {
