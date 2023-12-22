@@ -9,12 +9,11 @@ datasource db {
 }
 
 model token {
-  id           Int      @id(map: "token_pk") @default(autoincrement())
-  value        String
-  user_id      Int
-  created_at   DateTime @default(now()) @db.Timestamp(6)
-  live_seconds Int?     @default(dbgenerated("seconds(created_at)"))
-  users        users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "token_user_id_fk")
+  id         Int      @id(map: "token_pk") @default(autoincrement())
+  value      String
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "token_user_id_fk")
 }
 
 model users {
@@ -26,4 +25,12 @@ model users {
   photo            String?
   email            String  @unique(map: "unique_email")
   token            token[]
+}
+
+view v_token_live {
+  id           Int      @id
+  value        String
+  user_id      Int
+  created_at   DateTime @db.Timestamp(6)
+  live_seconds Int
 }

@@ -28,7 +28,7 @@ router.post('/request-restore-password', defineEventHandler(async (event) => {
         return 1
     }
     user.restore_password = crypto.createHmac('sha256', '').update(Math.random().toString()).digest('hex')
-    await prisma.users.update({where:{id:user.id}, data:user})
+    await prisma.users.update({where: {id: user.id}, data: user})
     const res = await transporter.sendMail({
         from: process.env.MAIL_USER,
         to: email,
@@ -38,6 +38,9 @@ router.post('/request-restore-password', defineEventHandler(async (event) => {
     if (!res.messageId) throw createError({statusCode: 500, message: 'Ошибка отправки'})
     return 1
 }))
+//prisma.$queryRaw`select now(), created_at, extract(epoch from now()) - extract('epoch' from created_at) from token where
+// id=19`.then(console.log);
+//prisma.v_token_live.findMany({where:{id:19}}).then(console.log);;
 
 router.post('/process-restore-password', defineEventHandler(async (event) => {
     const {code} = await readBody(event)
@@ -46,9 +49,9 @@ router.post('/process-restore-password', defineEventHandler(async (event) => {
     const password = crypto.createHash('sha256').update(Math.random().toString()).digest('hex').substring(1, 5)
     user.password_hash = password
     user.restore_password = ''
-    await prisma.users.update({where:{id:user.id}, data:user})
-    if(user.email) {
-        const res = transporter.sendMail({
+    await prisma.users.update({where: {id: user.id}, data: user})
+    if (user.email) {
+        await transporter.sendMail({
             from: process.env.MAIL_USER,
             to: user.email,
             subject: 'Новый пароль',
@@ -71,17 +74,11 @@ router.get('/logout', defineEventHandler(async (event) => {
 
 
 router.put('/signup', defineEventHandler(async (event) => {
+
+    const {email, password} = await readBody(event)
+    let created
     try {
-        const {email, password} = await readBody(event)
-        const created = await prisma.users.create({data: {email, name: email, password_hash: utils.hashPassword(password)}})
-        if (!created) throw createError({statusCode: 400, message: 'Юзер не создан'})
-        const user = await prisma.users.findUnique({
-            where: {id: created.id},
-            select: {id: true, email: true, name: true, photo: true}
-        });
-        if (!user) throw createError({statusCode: 400, message: 'User not found'})
-        await utils.setAuthToken(event, user?.id)
-        return user
+        created = await prisma.users.create({data: {email, name: email, password_hash: utils.hashPassword(password)}})
     } catch (e: any) {
         console.log(e.message)
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -92,6 +89,15 @@ router.put('/signup', defineEventHandler(async (event) => {
         }
         throw createError({statusCode: 401, message: 'Ошибка регистрации'})
     }
+    if (!created) throw createError({statusCode: 400, message: 'Юзер не создан'})
+    const user = await prisma.users.findUnique({
+        where: {id: created.id},
+        select: {id: true, email: true, name: true, photo: true}
+    });
+    if (!user) throw createError({statusCode: 400, message: 'User not found'})
+    await utils.setAuthToken(event, user?.id)
+    return user
+
 }))
 
 router.post('/login/:strategy', defineEventHandler(async (event) => {

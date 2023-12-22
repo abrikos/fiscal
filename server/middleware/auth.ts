@@ -7,9 +7,10 @@ export default defineEventHandler(async (event) => {
     const {authExpiration, authTokenName, authRefreshBeforeExpiration} = useRuntimeConfig(event)
     const cookies = parseCookies(event)
     if (!cookies[authTokenName]) return
-    const token = await prisma.token.findFirst({
+    const token = await prisma.v_token_live.findFirst({
         where: {value: cookies[authTokenName]},
     })
+
     const user = await prisma.users.findUnique({
         where: {id: token?.user_id}, select: {
             id: true,
@@ -32,10 +33,9 @@ export default defineEventHandler(async (event) => {
         })
     */
 
-    if (token?.live_seconds && user) {
+    if (token && user) {
         if (authExpiration - token.live_seconds < authRefreshBeforeExpiration) {
-            console.log('Token refresh', authExpiration, token.live_seconds)
-            //await utils.setAuthToken(event, user.id)
+            await utils.setAuthToken(event, user.id)
         }
         event.context.user = user
     }
