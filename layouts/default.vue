@@ -24,10 +24,11 @@ function toggleTheme () {
 v-app
     NuxtLoadingIndicator
     v-app-bar(density="compact" )
-        v-app-bar-title Ykt Bands
+        v-app-bar-title Аггрегатор чеков
         v-btn(to="/") Начало
         v-btn(to="/login" v-if="!loggedUser") Войти
         v-btn(to="/signup" v-if="!loggedUser") Регистрация
+        v-btn(to="/upload" v-if="loggedUser") Загрузить JSON
         v-btn(to="/cabinet" v-if="loggedUser") {{loggedUser.name}}
             UserAvatar(:user="loggedUser")
         v-btn(@click="logUserOut" v-if="loggedUser" append-icon="mdi-logout" ) Выйти
@@ -40,7 +41,7 @@ v-app
             v-list-item
                 v-switch(@click="toggleTheme" v-model="nightMode" label="Ночной режим" )
     v-main
-        v-container(fluid)
+        v-container(fluid="true")
             slot
     NuxtSnackbar
 </template>

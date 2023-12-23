@@ -9,6 +9,9 @@ export default defineNuxtConfig({
         authExpiration: 3600,
         authRefreshBeforeExpiration: 3000,
         authTokenName: 'auth_token',
+        public:{
+            botName: process.env.BOT_NAME
+        }
     },
     app: {
         head: {

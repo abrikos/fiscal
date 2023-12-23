@@ -17,14 +17,40 @@ model token {
 }
 
 model users {
-  id               Int     @id(map: "user_pk") @default(autoincrement())
+  id               Int      @id(map: "user_pk") @default(autoincrement())
   password_hash    String?
   restore_password String?
   strategy         String?
   name             String?
   photo            String?
-  email            String  @unique(map: "unique_email")
+  email            String   @unique(map: "unique_email")
+  fiscal           fiscal[]
   token            token[]
+}
+
+model fiscal {
+  id                     Int      @id(map: "fiscal_pk") @default(autoincrement())
+  user_id                Int
+  owner                  String?
+  operator               String?
+  retail_place           String?
+  retail_place_address   String?
+  fiscal_document_number Int      @unique(map: "unique_fiscal_document_number")
+  fiscal_sign            BigInt   @unique(map: "unique_fiscal_sign")
+  total_sum              Int
+  date_time              DateTime @db.Timestamp(6)
+  users                  users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fiscal_user_id_fk")
+  good                   good[]
+}
+
+model good {
+  id        Int     @id(map: "good_pk") @default(autoincrement())
+  fiscal_id Int
+  name      String?
+  price     Float
+  quantity  Int
+  sum       Float
+  fiscal    fiscal  @relation(fields: [fiscal_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "good_fiscal_id_fk")
 }
 
 view v_token_live {
