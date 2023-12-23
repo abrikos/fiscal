@@ -1,8 +1,5 @@
 import {Prisma, PrismaClient} from "@prisma/client";
-import Without = Prisma.Without;
 import fiscalCreateInput = Prisma.fiscalCreateInput;
-import fiscalUncheckedCreateInput = Prisma.fiscalUncheckedCreateInput;
-import goodCreateInput = Prisma.goodCreateInput;
 import goodUncheckedCreateInput = Prisma.goodUncheckedCreateInput;
 
 const prisma = new PrismaClient()
@@ -57,7 +54,7 @@ export default defineEventHandler(async (event) => {
             try {
                 const check = await prisma.fiscal.upsert({
                         where: {fiscal_document_number: checkData.fiscal_document_number, user_id: user.id},
-                        create: stripPrisma(prisma.fiscal, checkData) as (Without<fiscalCreateInput, fiscalUncheckedCreateInput> & fiscalUncheckedCreateInput),
+                        create: stripPrisma(prisma.fiscal, checkData) as fiscalCreateInput,
                         update: {}
                     },
                 )
@@ -66,7 +63,7 @@ export default defineEventHandler(async (event) => {
                     for (const item of checkData.items as unknown as [{ fiscal_id: number }]) {
                         item.fiscal_id = check.id;
                         await prisma.good.create({
-                            data: stripPrisma(prisma.good, item) as (Without<goodCreateInput, goodUncheckedCreateInput> & goodUncheckedCreateInput),
+                            data: stripPrisma(prisma.good, item) as goodUncheckedCreateInput,
                         })
                         //.catch(e => {                                    console.log(e.message, item,)
                         // })
